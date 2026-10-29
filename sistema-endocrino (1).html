@@ -1,0 +1,1108 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sistema endocrino · Guía interactiva</title>
+<script>
+/* Tema claro/oscuro antes de pintar, para evitar parpadeo */
+(function(){
+  var t=null;
+  try{ t=localStorage.getItem('endo-tema'); }catch(e){}
+  if(!t){ t=(window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light'; }
+  document.documentElement.setAttribute('data-theme',t);
+})();
+</script>
+<style>
+:root{
+  --bg:#f4f7fb; --card:#ffffff; --ink:#17202e; --muted:#5a6678; --line:#dfe5ee;
+  --brand:#0f766e; --brand-ink:#ffffff; --soft:#e4f3f1;
+  --warn:#b45309; --warn-soft:#fef3c7;
+  --bad:#b91c1c; --bad-soft:#fee2e2;
+  --good:#15803d; --good-soft:#dcfce7;
+  --blue:#1d4ed8; --blue-soft:#dbeafe;
+  --body:#dbe4ef;
+  --shadow:0 1px 2px rgba(16,24,40,.06),0 6px 18px rgba(16,24,40,.06);
+}
+[data-theme="dark"]{
+  --bg:#0d131a; --card:#151d27; --ink:#e8edf4; --muted:#9aa8ba; --line:#263243;
+  --brand:#2dd4bf; --brand-ink:#04211d; --soft:#0f2b29;
+  --warn:#fbbf24; --warn-soft:#3a2a07;
+  --bad:#fca5a5; --bad-soft:#3b1717;
+  --good:#86efac; --good-soft:#10301c;
+  --blue:#93c5fd; --blue-soft:#14284a;
+  --body:#2a3647;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 6px 18px rgba(0,0,0,.35);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+.wrap{max-width:1060px;margin:0 auto;padding:0 16px}
+h1,h2,h3,h4{line-height:1.2;margin:0 0 .5em}
+h2{font-size:1.45rem}
+h3{font-size:1.15rem}
+h4{font-size:.82rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:.35em}
+p{margin:.3em 0 .8em}
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:3px solid var(--brand);outline-offset:2px}
+
+/* Encabezado */
+header.top{background:linear-gradient(135deg,#0f766e,#155e75 60%,#1e3a8a);color:#fff;padding:26px 0 20px}
+header.top .wrap{display:flex;gap:16px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+header.top h1{font-size:1.9rem;margin:0}
+header.top p{margin:.2em 0 0;opacity:.9}
+.theme-btn{background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.35);color:#fff;border-radius:999px;padding:8px 14px}
+.theme-btn:hover{background:rgba(255,255,255,.26)}
+
+/* Pestañas */
+nav.tabs{position:sticky;top:0;z-index:30;background:var(--card);border-bottom:1px solid var(--line);box-shadow:var(--shadow)}
+nav.tabs .wrap{display:flex;gap:4px;overflow-x:auto;padding-top:8px;padding-bottom:8px;scrollbar-width:thin}
+.tab{flex:0 0 auto;background:transparent;border:1px solid transparent;border-radius:999px;padding:8px 14px;color:var(--muted);font-weight:600;white-space:nowrap}
+.tab:hover{background:var(--soft);color:var(--ink)}
+.tab[aria-selected="true"]{background:var(--brand);color:var(--brand-ink)}
+
+main{padding:24px 0 60px}
+.panel{display:none}
+.panel.active{display:block;animation:fade .25s ease}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.lead{color:var(--muted);max-width:70ch}
+
+/* Tarjetas y grillas */
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;box-shadow:var(--shadow)}
+.grid{display:grid;gap:16px}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+@media (max-width:820px){.g2,.g3{grid-template-columns:1fr}}
+.stack>*+*{margin-top:16px}
+
+/* Siglas con tooltip */
+abbr.sigla{text-decoration:none;border-bottom:2px dotted var(--brand);cursor:help;position:relative;font-weight:700}
+abbr.sigla:hover::after,abbr.sigla:focus::after{
+  content:attr(data-tip);position:absolute;left:50%;bottom:calc(100% + 8px);transform:translateX(-50%);
+  background:var(--ink);color:var(--bg);padding:6px 10px;border-radius:8px;font-size:.78rem;font-weight:500;
+  width:max-content;max-width:230px;z-index:40;line-height:1.3;white-space:normal;text-align:left;box-shadow:var(--shadow)}
+
+/* Pills y chips */
+.pill{display:inline-block;padding:2px 10px;border-radius:999px;font-size:.75rem;font-weight:700}
+.pill.ex{background:var(--bad-soft);color:var(--bad)}
+.pill.de{background:var(--blue-soft);color:var(--blue)}
+.pill.au{background:var(--warn-soft);color:var(--warn)}
+.pill.ok{background:var(--good-soft);color:var(--good)}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 16px}
+.chip{background:var(--card);border:1px solid var(--line);border-radius:999px;padding:6px 13px;font-weight:600;font-size:.9rem}
+.chip:hover{border-color:var(--brand)}
+.chip[aria-pressed="true"]{background:var(--brand);color:var(--brand-ink);border-color:var(--brand)}
+.callout{background:var(--soft);border-left:4px solid var(--brand);border-radius:10px;padding:10px 14px;margin:12px 0}
+.callout.warn{background:var(--warn-soft);border-color:var(--warn)}
+.tip{background:var(--warn-soft);border-radius:10px;padding:9px 13px;margin-top:10px}
+.btn{background:var(--brand);color:var(--brand-ink);border:0;border-radius:10px;padding:9px 16px;font-weight:700}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.linkbtn{background:none;border:0;padding:0;color:var(--brand);font-weight:700;text-decoration:underline;cursor:pointer}
+
+/* Cómo funciona */
+.steps{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 14px}
+.stepbtn{display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:8px 12px;font-weight:600;font-size:.9rem}
+.stepbtn b{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--soft);color:var(--brand)}
+.stepbtn[aria-pressed="true"]{border-color:var(--brand);background:var(--soft)}
+.stepbtn[aria-pressed="true"] b{background:var(--brand);color:var(--brand-ink)}
+.stepdetail{min-height:120px}
+.stepdetail .big{font-size:2.2rem}
+.chain{display:grid;gap:8px}
+.chainrow{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;gap:8px;align-items:center}
+.node{background:var(--soft);border:1px solid var(--line);border-radius:12px;padding:8px 10px;text-align:center;font-weight:600;font-size:.92rem}
+.arrow{color:var(--brand);font-weight:800;text-align:center;font-size:.85rem}
+@media (max-width:620px){.chainrow{grid-template-columns:1fr}.arrow{transform:rotate(90deg)}}
+
+/* Mapa */
+.mapwrap{display:grid;grid-template-columns:minmax(220px,300px) 1fr;gap:20px;align-items:start}
+@media (max-width:820px){.mapwrap{grid-template-columns:1fr}}
+#body{width:100%;max-width:300px;height:auto;display:block;margin:0 auto}
+.dot{cursor:pointer}
+.dot circle{stroke:#fff;stroke-width:2;transition:all .15s}
+.dot text{fill:#fff;font-weight:800;font-size:12px;text-anchor:middle;dominant-baseline:central;pointer-events:none}
+.dot:hover circle{r:13}
+.dot.sel circle{stroke:var(--ink);stroke-width:4;r:13}
+.dot:focus-visible circle{stroke:var(--ink);stroke-width:4}
+.glist{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.gbtn{display:flex;align-items:center;gap:6px;background:var(--card);border:1px solid var(--line);border-radius:999px;padding:5px 11px;font-size:.88rem;font-weight:600}
+.gbtn i{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;color:#fff;font-style:normal;font-size:.72rem;font-weight:800}
+.gbtn[aria-pressed="true"]{border-color:var(--ink);background:var(--soft)}
+table.t{width:100%;border-collapse:collapse;font-size:.93rem}
+table.t th,table.t td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+table.t th{font-size:.76rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+.lobe{font-size:.72rem;background:var(--soft);color:var(--brand);padding:1px 8px;border-radius:999px;font-weight:700;white-space:nowrap}
+.tscroll{overflow-x:auto}
+
+/* Enfermedades */
+details.dis{background:var(--card);border:1px solid var(--line);border-radius:14px;margin-bottom:10px;box-shadow:var(--shadow)}
+details.dis[open]{border-color:var(--brand)}
+details.dis summary{list-style:none;cursor:pointer;padding:14px 16px;display:grid;grid-template-columns:auto auto 1fr;gap:6px 12px;align-items:center}
+details.dis summary::-webkit-details-marker{display:none}
+details.dis summary::before{content:"▸";color:var(--brand);font-weight:800;position:absolute;margin-left:-0px;display:none}
+.dname{font-weight:800;font-size:1.05rem}
+.dres{color:var(--muted);font-size:.92rem}
+@media (max-width:700px){details.dis summary{grid-template-columns:1fr}}
+.dbody{padding:0 16px 16px;display:grid;gap:14px;grid-template-columns:repeat(2,minmax(0,1fr))}
+.dbody ul{margin:.2em 0;padding-left:1.15em}
+.dbody .tip{grid-column:1/-1;margin-top:0}
+@media (max-width:700px){.dbody{grid-template-columns:1fr}}
+details.dis.flash{animation:flash 1.4s ease}
+@keyframes flash{0%,100%{box-shadow:var(--shadow)}30%{box-shadow:0 0 0 4px var(--brand)}}
+
+/* Laboratorio */
+input.range{-webkit-appearance:none;appearance:none;width:100%;height:12px;border-radius:99px;outline:none;
+  background:linear-gradient(90deg,#3b82f6 0 30%,#22c55e 30% 70%,#ef4444 70% 100%)}
+input.range::-webkit-slider-thumb{-webkit-appearance:none;width:26px;height:26px;border-radius:50%;background:#fff;border:4px solid var(--ink);cursor:grab}
+input.range::-moz-range-thumb{width:20px;height:20px;border-radius:50%;background:#fff;border:4px solid var(--ink);cursor:grab}
+input.range::-moz-range-track{background:transparent}
+.rlabels{display:flex;justify-content:space-between;font-size:.8rem;font-weight:700;color:var(--muted);margin-top:6px}
+.result{margin-top:14px}
+.meter{background:var(--line);border-radius:99px;height:16px;overflow:hidden}
+.meter>span{display:block;height:100%;border-radius:99px;transition:width .2s linear,background .2s}
+.mrow{display:grid;grid-template-columns:110px 1fr 54px;gap:10px;align-items:center;margin:8px 0;font-size:.9rem;font-weight:600}
+.switch{display:flex;gap:8px;align-items:center;margin:10px 0}
+.msg{min-height:3.2em}
+.flowline{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:8px}
+.flowline .node{font-size:.85rem}
+
+/* Siglas */
+.search{width:100%;padding:11px 14px;border-radius:12px;border:1px solid var(--line);background:var(--card);color:var(--ink);font:inherit;margin:8px 0 14px}
+.sg{font-weight:800;color:var(--brand);white-space:nowrap}
+
+/* Quiz */
+.bar{background:var(--line);border-radius:99px;height:8px;overflow:hidden;margin:8px 0 16px}
+.bar>span{display:block;height:100%;background:var(--brand);transition:width .3s}
+.qhead{color:var(--muted);font-weight:600;font-size:.9rem}
+.opts{display:grid;gap:10px;margin:14px 0}
+.opt{text-align:left;background:var(--card);border:2px solid var(--line);border-radius:12px;padding:12px 14px;font-weight:600}
+.opt:hover:not(:disabled){border-color:var(--brand)}
+.opt.right{border-color:var(--good);background:var(--good-soft)}
+.opt.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.opt:disabled{cursor:default}
+.score{font-size:2.6rem;font-weight:800;color:var(--brand)}
+
+footer{text-align:center;color:var(--muted);font-size:.85rem;padding:20px 16px 40px}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <div>
+      <h1>🧬 Sistema endocrino</h1>
+      <p>Guía interactiva para estudiar: glándulas, hormonas y enfermedades</p>
+    </div>
+    <button class="theme-btn" id="themeBtn" aria-label="Cambiar entre tema claro y oscuro">🌙 Modo oscuro</button>
+  </div>
+</header>
+
+<nav class="tabs" aria-label="Secciones">
+  <div class="wrap" role="tablist">
+    <button class="tab" role="tab" data-tab="funciona">1 · Cómo funciona</button>
+    <button class="tab" role="tab" data-tab="mapa">2 · Mapa del cuerpo</button>
+    <button class="tab" role="tab" data-tab="enfermedades">3 · Enfermedades</button>
+    <button class="tab" role="tab" data-tab="lab">4 · Laboratorio</button>
+    <button class="tab" role="tab" data-tab="siglas">5 · Siglas</button>
+    <button class="tab" role="tab" data-tab="quiz">6 · Practicá</button>
+  </div>
+</nav>
+
+<main class="wrap">
+
+<!-- ================= 1. CÓMO FUNCIONA ================= -->
+<section class="panel" id="p-funciona" role="tabpanel">
+  <h2>¿Cómo funciona el sistema endocrino?</h2>
+  <p class="lead">Es un conjunto de glándulas que fabrican <b>hormonas</b> (mensajeros químicos) y las liberan directamente a la <b>sangre</b>. Las hormonas regulan el crecimiento, el metabolismo, la reproducción y el equilibrio del cuerpo.</p>
+
+  <div class="card">
+    <h3>Los 6 pasos (tocá cada uno)</h3>
+    <div class="steps" id="steps"></div>
+    <div class="stepdetail" id="stepDetail"></div>
+    <div style="display:flex;gap:8px;margin-top:10px">
+      <button class="btn ghost" id="prevStep">← Anterior</button>
+      <button class="btn" id="nextStep">Siguiente →</button>
+    </div>
+  </div>
+
+  <div class="grid g2" style="margin-top:16px">
+    <div class="card">
+      <h3>Cadena de mando</h3>
+      <p>Cada nivel depende del anterior: <b>sin las órdenes de arriba, la glándula de abajo no trabaja bien</b>.</p>
+      <div class="chain" id="chain"></div>
+      <div class="callout"><abbr class="sigla" tabindex="0" data-tip="Hormona somatotrofina (hormona del crecimiento)">STH</abbr> y <abbr class="sigla" tabindex="0" data-tip="Prolactina">PRL</abbr> son la excepción: actúan directo sobre sus órganos blanco, sin pasar por otra glándula.</div>
+    </div>
+    <div class="card">
+      <h3>Endocrina vs. exocrina</h3>
+      <table class="t">
+        <tr><th></th><th>Endocrina</th><th>Exocrina</th></tr>
+        <tr><td><b>Libera a…</b></td><td>La sangre</td><td>Un conducto</td></tr>
+        <tr><td><b>Producto</b></td><td>Hormonas</td><td>Sudor, saliva, jugos</td></tr>
+        <tr><td><b>Ejemplo</b></td><td>Tiroides</td><td>Glándulas sudoríparas</td></tr>
+      </table>
+      <div class="callout warn"><b>Glándula mixta:</b> el <b>páncreas</b> es las dos cosas. Libera jugo pancreático al intestino (exocrina) e insulina y glucagón a la sangre (endocrina).</div>
+    </div>
+  </div>
+  <!-- ===== Ampliación: Cómo funciona ===== -->
+  <h3 style="margin-top:28px">1 · ¿Qué es una hormona?</h3>
+  <div class="grid g2">
+    <div class="card">
+      <p class="ab">Una hormona es un <b>mensajero químico</b> que fabrica una glándula (o un órgano) y que lleva una orden a otras células. Se produce en cantidades muy pequeñas, pero su efecto es muy grande.</p>
+      <h4>Características</h4>
+      <ul style="margin:.2em 0;padding-left:1.15em">
+        <li>Se liberan a la <b>sangre</b> (o al líquido que rodea a las células).</li>
+        <li>Actúan en <b>muy poca cantidad</b>.</li>
+        <li>Son <b>específicas</b>: solo actúan sobre células con su receptor.</li>
+        <li>Tienen <b>efecto prolongado</b> comparado con el sistema nervioso.</li>
+        <li>Después de actuar se <b>destruyen o eliminan</b> (sobre todo en hígado y riñón), así el mensaje no queda “prendido”.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Tipos de comunicación química</h3>
+      <p>Tocá cada tipo para ver la diferencia:</p>
+      <div class="chips" id="commChips" role="group" aria-label="Tipos de comunicación"></div>
+      <div id="commBox"></div>
+    </div>
+  </div>
+
+  <h3 style="margin-top:28px">2 · ¿De qué están hechas las hormonas?</h3>
+  <p class="lead">Según su química, las hormonas se dividen en tres grupos. Esto explica <b>dónde</b> está su receptor y <b>qué tan rápido</b> actúan.</p>
+  <div class="card tscroll">
+    <table class="t ab">
+      <tr><th>Grupo</th><th>Ejemplos</th><th>En la sangre</th><th>Receptor</th><th>Efecto</th></tr>
+      <tr><td><b>Peptídicas / proteicas</b><br>(cadenas de aminoácidos)</td><td>Insulina, glucagón, STH, TSH, ACTH, FSH, LH, PRL, ADH, oxitocina, PTH, calcitonina</td><td>Viajan disueltas en agua (libres)</td><td>En la <b>membrana</b> de la célula</td><td>Rápido y de corta duración</td></tr>
+      <tr><td><b>Esteroideas</b><br>(derivadas del colesterol)</td><td>Cortisol, aldosterona, estrógeno, progesterona, testosterona</td><td>Viajan unidas a proteínas (son grasas)</td><td><b>Dentro</b> de la célula</td><td>Lento pero duradero</td></tr>
+      <tr><td><b>Derivadas de aminoácidos</b></td><td>T3 y T4 (de la tirosina + yodo), adrenalina, noradrenalina, melatonina</td><td>Depende de la hormona</td><td>Adrenalina: membrana. T3 y T4: dentro del núcleo</td><td>Adrenalina: rápido. T3 y T4: lento</td></tr>
+    </table>
+  </div>
+  <div class="callout">💡 <b>Regla práctica:</b> las hormonas que se disuelven en agua (peptídicas) no pueden atravesar la membrana, así que se pegan <b>afuera</b>. Las que se disuelven en grasa (esteroideas) atraviesan la membrana y se pegan <b>adentro</b>.</div>
+
+  <h3 style="margin-top:28px">3 · ¿Cómo actúa una hormona sobre la célula?</h3>
+  <div class="grid g2">
+    <div class="card">
+      <span class="pill de">Receptor en la membrana</span>
+      <h3 style="margin-top:8px">Mecanismo rápido</h3>
+      <ol style="margin:.2em 0;padding-left:1.2em">
+        <li>La hormona (<b>primer mensajero</b>) se pega al receptor de la membrana.</li>
+        <li>Se activa un <b>segundo mensajero</b> dentro de la célula (por ejemplo, el AMPc).</li>
+        <li>Se enciende una cascada de enzimas.</li>
+        <li>La célula responde en minutos.</li>
+      </ol>
+      <div class="tip">Ejemplo: insulina, glucagón, adrenalina.</div>
+    </div>
+    <div class="card">
+      <span class="pill au">Receptor dentro de la célula</span>
+      <h3 style="margin-top:8px">Mecanismo lento</h3>
+      <ol style="margin:.2em 0;padding-left:1.2em">
+        <li>La hormona atraviesa la membrana.</li>
+        <li>Se une a su receptor en el citoplasma o en el núcleo.</li>
+        <li>El complejo se pega al <b>ADN</b> y activa ciertos genes.</li>
+        <li>La célula fabrica nuevas proteínas: el efecto tarda horas, pero dura.</li>
+      </ol>
+      <div class="tip">Ejemplo: cortisol, estrógeno, testosterona, T3 y T4.</div>
+    </div>
+  </div>
+
+  <h3 style="margin-top:28px">4 · ¿Qué hace que una glándula libere su hormona?</h3>
+  <p class="lead">Hay tres tipos de estímulos. Una misma glándula puede recibir más de uno.</p>
+  <div class="grid g3">
+    <div class="card"><h4>Nervioso</h4><p class="ab">Una señal de los nervios activa la glándula. <b>Ejemplo:</b> en una situación de miedo, los nervios estimulan la médula de las suprarrenales y libera adrenalina.</p></div>
+    <div class="card"><h4>Humoral</h4><p class="ab">La glándula “mide” una sustancia en la sangre. <b>Ejemplos:</b> si sube la glucosa, el páncreas libera insulina. Si baja el calcio, las paratiroides liberan PTH.</p></div>
+    <div class="card"><h4>Hormonal</h4><p class="ab">Otra hormona da la orden. <b>Ejemplo:</b> la TSH de la hipófisis ordena a la tiroides liberar T3 y T4 (la “cadena de mando”).</p></div>
+  </div>
+  <div class="callout warn"><b>Ritmos:</b> muchas hormonas se liberan en ciclos. El cortisol es más alto a la mañana, la melatonina sube de noche y las hormonas sexuales de la mujer cambian a lo largo del ciclo menstrual.</div>
+
+  <h3 style="margin-top:28px">5 · Retroalimentación (feedback)</h3>
+  <div class="grid g2">
+    <div class="card">
+      <h3>🔁 Negativa: el sistema se frena solo</h3>
+      <p>Es la más común. Cuando el nivel de la hormona (o de lo que ella controla) llega al valor normal, la glándula <b>baja</b> su producción.</p>
+      <p><b>Probalo con el eje de la tiroides:</b></p>
+      <div class="chips" id="axisChips" role="group" aria-label="Estado de la hormona tiroidea">
+        <button class="chip" data-ax="low">T3 y T4 bajas ↓</button>
+        <button class="chip" data-ax="ok" aria-pressed="true">T3 y T4 normales</button>
+        <button class="chip" data-ax="high">T3 y T4 altas ↑</button>
+      </div>
+      <div id="axisBox"></div>
+    </div>
+    <div class="card">
+      <h3>⚡ Positiva: el estímulo se refuerza</h3>
+      <p>Es poco frecuente. La respuesta <b>aumenta</b> el estímulo, y así sigue hasta que algo externo lo corta.</p>
+      <div class="flowline">
+        <span class="node">Contracciones del parto</span><span class="arrow">→</span>
+        <span class="node">El bebé presiona el cuello del útero</span><span class="arrow">→</span>
+        <span class="node">Se libera más oxitocina</span><span class="arrow">→</span>
+        <span class="node">Más contracciones ↑</span>
+      </div>
+      <p class="ab" style="margin-top:10px">Se corta cuando nace el bebé. Otro ejemplo: antes de la ovulación, el estrógeno alto provoca el pico de LH.</p>
+      <table class="t" style="margin-top:6px">
+        <tr><th></th><th>Negativa</th><th>Positiva</th></tr>
+        <tr><td><b>Efecto</b></td><td>Frena el estímulo</td><td>Lo refuerza</td></tr>
+        <tr><td><b>Resultado</b></td><td>Equilibrio</td><td>Cambio rápido y explosivo</td></tr>
+        <tr><td><b>Ejemplo</b></td><td>Glucosa, calcio, T3 y T4</td><td>Parto (oxitocina)</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <h3 style="margin-top:28px">6 · El eje hipotálamo – hipófisis</h3>
+  <p class="lead ab">El hipotálamo (cerebro) controla a la hipófisis de dos maneras distintas, según el lóbulo.</p>
+  <div class="grid g2">
+    <div class="card">
+      <span class="pill de">Hipófisis anterior</span>
+      <h3 style="margin-top:8px">Fabrica sus propias hormonas</h3>
+      <p class="ab">El hipotálamo manda hormonas <b>liberadoras</b> o <b>inhibidoras</b> por unos vasos sanguíneos especiales (sistema porta). La hipófisis anterior responde liberando sus hormonas.</p>
+    </div>
+    <div class="card">
+      <span class="pill au">Hipófisis posterior</span>
+      <h3 style="margin-top:8px">Solo almacena y libera</h3>
+      <p class="ab">No fabrica hormonas. La <b>oxitocina</b> y la <b>ADH</b> se fabrican en el hipotálamo y bajan por las prolongaciones de las neuronas hasta la hipófisis posterior, que las libera a la sangre.</p>
+    </div>
+  </div>
+  <div class="card tscroll" style="margin-top:16px">
+    <table class="t ab">
+      <tr><th>Orden del hipotálamo</th><th>Hormona de la hipófisis anterior</th><th>Órgano blanco</th></tr>
+      <tr><td>TRH</td><td>TSH</td><td>Tiroides</td></tr>
+      <tr><td>CRH</td><td>ACTH</td><td>Corteza suprarrenal</td></tr>
+      <tr><td>GnRH</td><td>FSH y LH (GTH)</td><td>Ovarios y testículos</td></tr>
+      <tr><td>GHRH (la somatostatina la frena)</td><td>STH</td><td>Huesos, músculos y otros tejidos</td></tr>
+      <tr><td>La dopamina la frena</td><td>PRL</td><td>Glándulas mamarias</td></tr>
+    </table>
+  </div>
+
+  <h3 style="margin-top:28px">7 · Sistema nervioso vs. sistema endocrino</h3>
+  <div class="card tscroll">
+    <table class="t">
+      <tr><th></th><th>Sistema nervioso</th><th>Sistema endocrino</th></tr>
+      <tr><td><b>Mensajero</b></td><td>Neurotransmisores</td><td>Hormonas</td></tr>
+      <tr><td><b>Por dónde viaja</b></td><td>Neuronas (cableado)</td><td>Sangre</td></tr>
+      <tr><td><b>Velocidad</b></td><td>Muy rápida (milisegundos)</td><td>Más lenta (segundos a horas)</td></tr>
+      <tr><td><b>Duración del efecto</b></td><td>Corta</td><td>Larga</td></tr>
+      <tr><td><b>Alcance</b></td><td>Puntual</td><td>Amplio (todo el cuerpo)</td></tr>
+    </table>
+  </div>
+  <div class="callout">🤝 <b>Trabajan juntos:</b> el hipotálamo es parte del sistema nervioso, pero controla al sistema endocrino. Por eso se habla de sistema <b>neuroendocrino</b>.</div>
+
+  <h3 style="margin-top:28px">8 · ¿Por qué se altera el sistema endocrino?</h3>
+  <div class="grid g3">
+    <div class="card"><span class="pill ex">Exceso</span><p class="ab" style="margin-top:8px">La glándula produce de más, generalmente por un <b>tumor</b> o por estimulación excesiva. <button class="linkbtn" data-d="acromegalia">Acromegalia</button> o <button class="linkbtn" data-d="cushing">Cushing</button>.</p></div>
+    <div class="card"><span class="pill de">Déficit</span><p class="ab" style="margin-top:8px">Produce de menos: por destruirse, extirparse o faltar materia prima (como el yodo). <button class="linkbtn" data-d="hipoparatiroidismo">Hipoparatiroidismo</button> o <button class="linkbtn" data-d="hipotiroidismo">hipotiroidismo</button>.</p></div>
+    <div class="card"><span class="pill au">Autoinmune</span><p class="ab" style="margin-top:8px">Las defensas atacan la glándula o la estimulan por error. <button class="linkbtn" data-d="hashimoto">Hashimoto</button>, <button class="linkbtn" data-d="graves">Graves</button> o <button class="linkbtn" data-d="addison">Addison</button>.</p></div>
+  </div>
+  <div class="callout warn"><b>Resistencia:</b> también puede pasar que la hormona esté pero las células <b>no le respondan</b> (el receptor “falla”). Es lo que ocurre en la <button class="linkbtn" data-d="diabetes">diabetes</button> tipo 2.</div>
+
+  <div class="card" style="margin-top:20px">
+    <h3>📝 Para llevarte</h3>
+    <ul style="margin:.2em 0;padding-left:1.15em">
+      <li>Hormona = mensajero químico que viaja por la sangre y actúa solo sobre su <b>órgano blanco</b>.</li>
+      <li><b>Peptídicas</b>: receptor afuera, efecto rápido. <b>Esteroideas</b>: receptor adentro, efecto lento.</li>
+      <li>La liberación se controla por estímulo <b>nervioso, humoral u hormonal</b>.</li>
+      <li>La regulación habitual es la <b>retroalimentación negativa</b>. La positiva (oxitocina en el parto) es la excepción.</li>
+      <li>Hipotálamo → hipófisis → glándula periférica → hormona final, que frena a los de arriba.</li>
+      <li>Las fallas son de <b>exceso</b>, de <b>déficit</b>, <b>autoinmunes</b> o por <b>resistencia</b> del receptor.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ================= 2. MAPA ================= -->
+<section class="panel" id="p-mapa" role="tabpanel">
+  <h2>Mapa del cuerpo</h2>
+  <p class="lead">Tocá un número del cuerpo (o un botón de la lista) para ver la glándula, sus hormonas y qué enfermedades produce cuando falla.</p>
+
+  <div class="mapwrap">
+    <div class="card">
+      <svg id="body" viewBox="0 0 240 420" role="img" aria-label="Silueta humana con las glándulas numeradas"></svg>
+      <p style="text-align:center;color:var(--muted);font-size:.85rem;margin:6px 0 0">Ovarios (mujeres) · Testículos (varones)</p>
+    </div>
+    <div>
+      <div class="glist" id="glist"></div>
+      <div class="card" id="gdetail"></div>
+    </div>
+  </div>
+
+  <h3 style="margin-top:24px">Otras glándulas (por si tu profe las pide)</h3>
+  <div class="grid g2">
+    <div class="card"><b>Glándula pineal</b> · en el cerebro<br>Produce <b>melatonina</b>: regula el ciclo sueño-vigilia.</div>
+    <div class="card"><b>Timo</b> · detrás del esternón<br>Produce <b>timosina</b>: ayuda a madurar los linfocitos T (defensas).</div>
+  </div>
+
+  <h3 style="margin-top:24px">Función endocrina de otros órganos</h3>
+  <p class="lead">Además de las glándulas principales, otros órganos también producen hormonas.</p>
+  <div class="card tscroll">
+    <table class="t ab">
+      <tr><th>Órgano</th><th>Hormonas</th><th>Función</th></tr>
+      <tr><td><b>Estómago</b></td><td>Gastrina y grelina.</td><td>La gastrina estimula la secreción de ácido gástrico; la grelina estimula el hambre.</td></tr>
+      <tr><td><b>Corazón</b></td><td>ANP y BNP.</td><td>Favorecen la eliminación de sodio y agua por los riñones y ayudan a regular la presión arterial.</td></tr>
+      <tr><td><b>Riñones</b></td><td>Eritropoyetina (EPO) y renina.</td><td>La EPO estimula la producción de glóbulos rojos y la renina participa en la regulación de la presión arterial. También activan la vitamina D.</td></tr>
+      <tr><td><b>Intestino delgado</b></td><td>Secretina y colecistoquinina (CCK).</td><td>La secretina estimula la liberación de bicarbonato pancreático y la CCK estimula las enzimas pancreáticas y la contracción de la vesícula biliar.</td></tr>
+    </table>
+  </div>
+  <div class="tip">💡 Para recordar: <b>grelina = hambre</b> (“gruñido” del estómago). <b>EPO</b> = glóbulos rojos. <b>ANP</b> = el corazón “elimina” sodio y agua.</div>
+</section>
+
+<!-- ================= 3. ENFERMEDADES ================= -->
+<section class="panel" id="p-enfermedades" role="tabpanel">
+  <h2>Enfermedades</h2>
+  <p class="lead">Casi todas son lo mismo: <b>una hormona de más (exceso)</b> o <b>de menos (déficit)</b>. Filtrá por glándula y abrí cada ficha.</p>
+  <div class="chips" id="dfilter" role="group" aria-label="Filtrar por glándula"></div>
+  <div id="dlist"></div>
+
+  <h3 style="margin-top:24px">Cuadro para repasar</h3>
+  <div class="card tscroll"><table class="t" id="cuadro"></table></div>
+</section>
+
+<!-- ================= 4. LABORATORIO ================= -->
+<section class="panel" id="p-lab" role="tabpanel">
+  <h2>Laboratorio</h2>
+  <p class="lead">Experimentá: movés una hormona y ves qué enfermedad aparece.</p>
+
+  <div class="card">
+    <h3>🎚️ Simulador de hormonas</h3>
+    <p>1) Elegí una hormona. 2) Movela hacia el déficit o el exceso.</p>
+    <div class="chips" id="simChips" role="group" aria-label="Elegir hormona"></div>
+    <div id="ageBox" class="switch" style="display:none">
+      <span><b>Edad de la persona:</b></span>
+      <button class="chip" id="ageKid" aria-pressed="true">👦 Niño/a (crece)</button>
+      <button class="chip" id="ageAdult" aria-pressed="false">🧑 Adulto/a</button>
+    </div>
+    <input type="range" class="range" id="simRange" min="0" max="100" value="50" aria-label="Nivel de la hormona">
+    <div class="rlabels"><span>Déficit</span><span>Normal</span><span>Exceso</span></div>
+    <div class="result" id="simResult"></div>
+  </div>
+
+  <div class="card" style="margin-top:16px">
+    <h3>🍝 Laboratorio de glucosa (insulina y glucagón)</h3>
+    <p>Mirá cómo el páncreas mantiene la glucosa estable. Después activá la diabetes y compará.</p>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn" id="btnEat">🍝 Comer</button>
+      <button class="btn ghost" id="btnFast">⏳ Pasar varias horas sin comer</button>
+      <button class="btn ghost" id="btnReset">↺ Reiniciar</button>
+    </div>
+    <label class="switch"><input type="checkbox" id="chkDiab"> <span>Simular <b>diabetes tipo 1</b> (el páncreas casi no produce insulina)</span></label>
+    <div class="mrow"><span>Glucosa</span><div class="meter"><span id="mGlu"></span></div><span id="vGlu"></span></div>
+    <div class="mrow"><span>Insulina</span><div class="meter"><span id="mIns" style="background:#3b82f6"></span></div><span></span></div>
+    <div class="mrow"><span>Glucagón</span><div class="meter"><span id="mGlc" style="background:#f59e0b"></span></div><span></span></div>
+    <div class="callout msg" id="gluMsg"></div>
+  </div>
+
+  <div class="card" style="margin-top:16px">
+    <h3>🦴 Laboratorio del calcio (PTH vs. calcitonina)</h3>
+    <p>Dos hormonas con efectos opuestos mantienen el calcio estable.</p>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="chip" data-ca="low">Calcio bajo ↓</button>
+      <button class="chip" data-ca="ok" aria-pressed="true">Calcio normal</button>
+      <button class="chip" data-ca="high">Calcio alto ↑</button>
+    </div>
+    <div class="result" id="caResult"></div>
+  </div>
+</section>
+
+<!-- ================= 5. SIGLAS ================= -->
+<section class="panel" id="p-siglas" role="tabpanel">
+  <h2>Siglas y vocabulario</h2>
+  <p class="lead">Si entendés qué significa cada sigla, ya sabés qué hace la hormona. Buscá lo que necesites.</p>
+  <input class="search" id="sgSearch" type="search" placeholder="Buscar: TSH, hipo, autoinmune…" aria-label="Buscar en el glosario">
+  <div class="card tscroll"><table class="t" id="sgTable"></table></div>
+</section>
+
+<!-- ================= 6. QUIZ ================= -->
+<section class="panel" id="p-quiz" role="tabpanel">
+  <h2>Practicá</h2>
+  <p class="lead">Preguntas mezcladas. Cada respuesta te explica el porqué.</p>
+  <div class="card" id="quiz"></div>
+</section>
+
+</main>
+
+<footer>Material de estudio · Si algo no coincide con tu carpeta, seguí lo que dice tu profe.</footer>
+
+<script>
+/* ============ Utilidades ============ */
+const $ = (s, r=document) => r.querySelector(s);
+const $$ = (s, r=document) => Array.from(r.querySelectorAll(s));
+const shuffle = a => { a=[...a]; for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; };
+
+/* ============ Siglas ============ */
+const SIGLAS = {
+  STH:'Hormona somatotrofina (hormona del crecimiento)',
+  TSH:'Hormona tiroestimulante',
+  ACTH:'Hormona adrenocorticotrofina',
+  GTH:'Gonadotrofinas (FSH + LH)',
+  FSH:'Hormona foliculoestimulante',
+  LH:'Hormona luteinizante',
+  PRL:'Prolactina',
+  MSH:'Hormona melanoestimulante',
+  ADH:'Hormona antidiurética',
+  T3:'Triyodotironina (3 átomos de yodo)',
+  T4:'Tiroxina (4 átomos de yodo)',
+  PTH:'Parathormona (hormona paratiroidea)',
+  ANP:'Péptido natriurético auricular (del corazón)',
+  BNP:'Péptido natriurético cerebral (se produce en el corazón)',
+  EPO:'Eritropoyetina',
+  CCK:'Colecistoquinina',
+  TRH:'Hormona liberadora de tirotrofina (hipotálamo)',
+  CRH:'Hormona liberadora de corticotrofina (hipotálamo)',
+  GnRH:'Hormona liberadora de gonadotrofinas (hipotálamo)',
+  GHRH:'Hormona liberadora de la hormona del crecimiento (hipotálamo)'
+};
+const SIGLA_RE = /\b(STH|TSH|ACTH|GTH|FSH|LH|PRL|MSH|ADH|T3|T4|PTH|ANP|BNP|EPO|CCK|TRH|CRH|GnRH|GHRH)\b/g;
+const ab = s => s.replace(SIGLA_RE, m => `<abbr class="sigla" tabindex="0" data-tip="${SIGLAS[m]}">${m}</abbr>`);
+
+/* ============ Datos: glándulas ============ */
+const GLANDS = [
+  { id:'hipotalamo', n:'Hipotálamo', num:1, color:'#7c3aed', pos:[[108,44]],
+    donde:'En el cerebro, justo arriba de la hipófisis.',
+    rol:'Es el “jefe” del sistema: controla a la hipófisis.',
+    hormonas:[['Oxitocina','Contracciones del parto (se guarda y libera en la hipófisis posterior)'],['ADH','Retiene agua: orinás menos (se guarda y libera en la hipófisis posterior)']],
+    fund:'Es fundamental para la hipófisis: sin sus órdenes, ella no trabaja bien.', fallas:[] },
+  { id:'hipofisis', n:'Hipófisis', num:2, color:'#db2777', pos:[[132,60]],
+    donde:'Base del cerebro, dentro de la silla turca (un hueco del hueso esfenoides).',
+    rol:'“Glándula maestra”: da órdenes a otras glándulas.',
+    hormonas:[
+      ['STH','Hace crecer huesos y músculos','Anterior'],
+      ['TSH','Ordena a la tiroides que trabaje','Anterior'],
+      ['ACTH','Ordena a las suprarrenales que trabajen','Anterior'],
+      ['GTH','Ordena a las gónadas: son FSH (madura óvulos y espermatozoides) y LH (ovulación y testosterona)','Anterior'],
+      ['PRL','Estimula la producción de leche','Anterior'],
+      ['MSH','Pigmentación de la piel','Medio'],
+      ['Oxitocina','Contracciones del parto (la fabrica el hipotálamo)','Posterior'],
+      ['ADH','Retiene agua (la fabrica el hipotálamo)','Posterior']],
+    fund:'La tiroides, las suprarrenales y las gónadas dependen de sus órdenes (TSH, ACTH y GTH).',
+    fallas:['enanismo','gigantismo','acromegalia'] },
+  { id:'tiroides', n:'Tiroides', num:3, color:'#0891b2', pos:[[120,114]],
+    donde:'Debajo de la laringe, en el cuello. Tiene forma de mariposa (dos lóbulos unidos).',
+    rol:'Controla la velocidad del metabolismo, el crecimiento y el desarrollo.',
+    hormonas:[['T3 y T4','Regulan el metabolismo (qué tan rápido “funciona” el cuerpo). T4 = tiroxina'],['Calcitonina','Baja el calcio en la sangre']],
+    fund:'Necesita yodo para fabricar T3 y T4, y recibe órdenes de la TSH.',
+    fallas:['hipertiroidismo','hipotiroidismo','graves','hashimoto'] },
+  { id:'paratiroides', n:'Paratiroides', num:4, color:'#0d9488', pos:[[152,120]],
+    donde:'Pequeñas glándulas pegadas detrás de la tiroides.',
+    rol:'Regulan el calcio (y el fósforo) de la sangre y de los huesos.',
+    hormonas:[['PTH','Sube el calcio en la sangre (lo saca del hueso y lo retiene en el riñón)']],
+    fund:'Trabaja en equipo, pero en sentido opuesto, con la calcitonina de la tiroides.',
+    fallas:['hiperparatiroidismo','hipoparatiroidismo'] },
+  { id:'suprarrenales', n:'Suprarrenales', num:5, color:'#ea580c', pos:[[94,188],[146,188]],
+    donde:'Encima de cada riñón (supra = arriba, renal = riñón).',
+    rol:'Responden al estrés y regulan sales y agua. Tienen corteza (afuera) y médula (adentro).',
+    hormonas:[
+      ['Cortisol','Respuesta al estrés y manejo del azúcar','Corteza'],
+      ['Aldosterona','Retiene sodio y agua (mineralocorticoide)','Corteza'],
+      ['Gonadocorticoides','Hormonas sexuales en pequeña cantidad','Corteza'],
+      ['Adrenalina y noradrenalina','Reacción de “lucha o huida”: sube el pulso y la energía','Médula']],
+    fund:'Reciben órdenes de la ACTH (de la hipófisis).',
+    fallas:['cushing','addison'] },
+  { id:'pancreas', n:'Páncreas', num:6, color:'#ca8a04', pos:[[120,216]],
+    donde:'Detrás del estómago. Es una glándula mixta.',
+    rol:'Controla la glucosa (azúcar) en sangre. Su parte endocrina son los islotes de Langerhans.',
+    hormonas:[['Insulina','Baja la glucosa (la hacen las células beta)'],['Glucagón','Sube la glucosa (lo hacen las células alfa)'],['Jugo pancreático','No es hormona: va al intestino para digerir (parte exocrina)']],
+    fund:'Insulina y glucagón son opuestos: juntos mantienen la glucosa estable.',
+    fallas:['diabetes'] },
+  { id:'ovarios', n:'Ovarios', num:7, color:'#e11d48', pos:[[96,246],[144,246]],
+    donde:'En la pelvis de la mujer, a cada lado del útero.',
+    rol:'Producen óvulos y hormonas sexuales femeninas.',
+    hormonas:[['Estrógeno','Desarrollo sexual femenino y engrosamiento del endometrio'],['Progesterona','Mantiene el endometrio preparado para el embarazo']],
+    fund:'Reciben órdenes de la FSH y la LH. Actúan sobre el endometrio (la pared del útero) en el ciclo.', fallas:[] },
+  { id:'testiculos', n:'Testículos', num:8, color:'#2563eb', pos:[[120,290]],
+    donde:'En el escroto del varón.',
+    rol:'Producen espermatozoides y hormonas sexuales masculinas.',
+    hormonas:[['Testosterona','Caracteres sexuales masculinos (voz, vello, músculo)']],
+    fund:'Reciben órdenes de la FSH y la LH.', fallas:[] }
+];
+const GL = Object.fromEntries(GLANDS.map(g=>[g.id,g]));
+
+/* ============ Datos: enfermedades ============ */
+const T_EX={cls:'ex',txt:'Exceso'}, T_DE={cls:'de',txt:'Déficit'}, T_AU={cls:'au',txt:'Autoinmune'};
+const DISEASES = [
+  { id:'diabetes', n:'Diabetes', g:'pancreas', t:T_DE, res:'Falta insulina (o no hace efecto) y la glucosa sube.',
+    que:'La glucosa se acumula en la sangre porque no hay suficiente insulina o las células no le responden.',
+    s:['Mucha sed (polidipsia)','Orinar mucho (poliuria)','Mucha hambre (polifagia)','Pérdida de peso y cansancio','Visión borrosa'],
+    c:'Tipo 1: autoinmune, el páncreas casi no produce insulina (suele aparecer en jóvenes). Tipo 2: resistencia a la insulina, ligada a obesidad y sedentarismo (la más común). Gestacional: aparece en el embarazo.',
+    tr:'Alimentación, ejercicio y control de la glucosa. Antidiabéticos orales o insulina (en el tipo 1 siempre insulina).',
+    tip:'“Poli” significa mucho: polidipsia (mucha sed), poliuria (mucha orina), polifagia (mucha hambre).' },
+  { id:'hipertiroidismo', n:'Hipertiroidismo', g:'tiroides', t:T_EX, res:'La tiroides produce demasiada hormona: todo va acelerado.',
+    que:'Exceso de T3 y T4. El metabolismo se acelera.',
+    s:['Adelgazar aunque se coma mucho','Taquicardia (corazón acelerado)','Nerviosismo y temblores','Sudoración e intolerancia al calor','Diarrea'],
+    c:'La enfermedad de Graves (la más común) o nódulos tiroideos.',
+    tr:'Medicamentos antitiroideos, yodo radiactivo o cirugía.',
+    tip:'Hiper = demasiado. Hiper-tiroidismo = tiroides “a mil”.' },
+  { id:'hipotiroidismo', n:'Hipotiroidismo', g:'tiroides', t:T_DE, res:'La tiroides produce poca hormona: todo va lento.',
+    que:'Falta de T3 y T4. El metabolismo se enlentece.',
+    s:['Cansancio y sueño','Aumento de peso','Intolerancia al frío','Piel seca y pulso lento','Constipación y desánimo'],
+    c:'Tiroiditis de Hashimoto (la más común), falta de yodo (puede causar bocio: tiroides agrandada) o extirpación de la tiroides. En bebés sin tratar causa retraso del crecimiento y mental (cretinismo).',
+    tr:'Levotiroxina (hormona tiroidea sintética).',
+    tip:'Hipo = poco. Hipo-tiroidismo = tiroides “dormida”.' },
+  { id:'hiperparatiroidismo', n:'Hiperparatiroidismo', g:'paratiroides', t:T_EX, res:'Sobra PTH: sube el calcio en sangre y el hueso lo pierde.',
+    que:'Exceso de PTH → hipercalcemia (calcio alto en sangre). El hueso se debilita porque el calcio sale de él.',
+    s:['Huesos frágiles (osteoporosis) y dolor óseo','Cálculos renales (piedras en el riñón)','Sed y orinar mucho','Constipación y debilidad'],
+    c:'Generalmente un tumor benigno (adenoma) de la paratiroides.',
+    tr:'Generalmente cirugía.',
+    tip:'PTH sube el calcio de la sangre. Con PTH de más, el calcio sube… a costa de los huesos.' },
+  { id:'hipoparatiroidismo', n:'Hipoparatiroidismo', g:'paratiroides', t:T_DE, res:'Falta PTH: baja el calcio en sangre.',
+    que:'Déficit de PTH → hipocalcemia (calcio bajo en sangre). Sin calcio, los músculos y los nervios se descontrolan.',
+    s:['Hormigueo en manos y cara','Calambres y espasmos (tetania)','Convulsiones en casos graves'],
+    c:'Suele pasar por lesión o extirpación accidental de las paratiroides durante una cirugía de tiroides.',
+    tr:'Calcio y vitamina D.',
+    tip:'Tetania = espasmos musculares por falta de calcio. No confundir con tétanos (una infección).' },
+  { id:'cushing', n:'Síndrome de Cushing', g:'suprarrenales', t:T_EX, res:'Exceso de cortisol.',
+    que:'El cuerpo tiene demasiado cortisol durante mucho tiempo.',
+    s:['Cara de luna llena','Obesidad en el tronco con brazos y piernas finos','“Joroba” en la nuca','Estrías violáceas','Presión y glucosa altas','Debilidad muscular, piel fina'],
+    c:'Lo más común: uso prolongado de corticoides (medicamentos). También un tumor en las suprarrenales o un tumor de hipófisis que produce mucha ACTH (en ese caso se llama enfermedad de Cushing).',
+    tr:'Depende de la causa: cirugía del tumor o bajar los corticoides.',
+    tip:'Cushing = cortisol “de más”.' },
+  { id:'addison', n:'Enfermedad de Addison', g:'suprarrenales', t:T_DE, res:'Faltan cortisol y aldosterona.',
+    que:'Insuficiencia suprarrenal: las suprarrenales producen poco cortisol y poca aldosterona. Suele ser autoinmune.',
+    s:['Cansancio extremo y pérdida de peso','Presión baja','Piel oscura o bronceada (la hipófisis manda mucha ACTH)','Ganas de comer sal','Glucosa baja y náuseas'],
+    c:'Generalmente autoinmune: el sistema de defensa daña la corteza suprarrenal.',
+    tr:'Reemplazo de hormonas (hidrocortisona y fludrocortisona). La “crisis addisoniana” (caída grave de la presión) es una emergencia.',
+    tip:'Addison = cortisol “de menos”. Sin aldosterona se pierde sal y baja la presión, por eso se desea comer sal.' },
+  { id:'enanismo', n:'Enanismo hipofisario', g:'hipofisis', t:T_DE, res:'Falta de hormona del crecimiento (STH) en la infancia.',
+    que:'El niño produce poca STH y crece muy poco.',
+    s:['Talla muy baja','Proporciones normales del cuerpo','Inteligencia normal'],
+    c:'Déficit de STH desde la hipófisis.',
+    tr:'Hormona del crecimiento, si se diagnostica a tiempo.',
+    tip:'Lo característico: es bajito pero con proporciones normales.' },
+  { id:'gigantismo', n:'Gigantismo', g:'hipofisis', t:T_EX, res:'Exceso de STH en la infancia o adolescencia.',
+    que:'Hay demasiada STH antes de que se cierren los cartílagos de crecimiento de los huesos, así que el cuerpo sigue creciendo en largo.',
+    s:['Talla muy alta','Crecimiento exagerado de todo el cuerpo'],
+    c:'Generalmente un tumor de la hipófisis.',
+    tr:'Cirugía o medicamentos que bajan la STH.',
+    tip:'Gigantismo y acromegalia tienen la misma causa. Cambia la edad en que aparece.' },
+  { id:'acromegalia', n:'Acromegalia', g:'hipofisis', t:T_EX, res:'Exceso de STH en el adulto.',
+    que:'En el adulto los huesos largos ya no pueden crecer en largo. Entonces crecen los extremos y los huesos de la cara.',
+    s:['Crecen manos, pies, mandíbula, frente, nariz y lengua','Cambio en los rasgos de la cara','Voz más grave','Dolores articulares'],
+    c:'Generalmente un tumor de la hipófisis.',
+    tr:'Cirugía o medicamentos que bajan la STH.',
+    tip:'“Acro” = extremidades; “megalia” = agrandamiento.' },
+  { id:'hashimoto', n:'Tiroiditis de Hashimoto', g:'tiroides', t:T_AU, res:'Las defensas destruyen la tiroides → hipotiroidismo.',
+    que:'Enfermedad autoinmune: el sistema de defensa ataca la tiroides y la va destruyendo.',
+    s:['Los del hipotiroidismo (cansancio, frío, aumento de peso)','A veces bocio'],
+    c:'Autoinmune. Es la causa más común de hipotiroidismo.',
+    tr:'Levotiroxina de por vida.',
+    tip:'Hashimoto frena la tiroides. Graves la acelera.' },
+  { id:'graves', n:'Enfermedad de Graves', g:'tiroides', t:T_AU, res:'Anticuerpos estimulan la tiroides → hipertiroidismo.',
+    que:'Enfermedad autoinmune: unos anticuerpos se pegan a la tiroides como si fueran TSH y la obligan a producir de más.',
+    s:['Los del hipertiroidismo (nervios, taquicardia, adelgazar)','Bocio','Exoftalmos (ojos saltones)'],
+    c:'Autoinmune. Es la causa más común de hipertiroidismo.',
+    tr:'Antitiroideos, yodo radiactivo o cirugía.',
+    tip:'Graves = ojos saltones (exoftalmos).' }
+];
+const DIS = Object.fromEntries(DISEASES.map(d=>[d.id,d]));
+
+/* ============ Navegación por pestañas ============ */
+const TABS = $$('.tab');
+function go(tab){
+  TABS.forEach(b=>b.setAttribute('aria-selected', b.dataset.tab===tab));
+  $$('.panel').forEach(p=>p.classList.toggle('active', p.id==='p-'+tab));
+  try{ history.replaceState(null,'','#'+tab); }catch(e){}
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+TABS.forEach(b=>b.addEventListener('click',()=>go(b.dataset.tab)));
+
+/* ============ Tema ============ */
+function paintThemeBtn(){
+  const dark=document.documentElement.getAttribute('data-theme')==='dark';
+  $('#themeBtn').textContent = dark ? '☀️ Modo claro' : '🌙 Modo oscuro';
+}
+$('#themeBtn').addEventListener('click',()=>{
+  const next=document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark';
+  document.documentElement.setAttribute('data-theme',next);
+  try{ localStorage.setItem('endo-tema',next); }catch(e){}
+  paintThemeBtn();
+});
+paintThemeBtn();
+
+/* ============ 1. Cómo funciona ============ */
+const STEPS = [
+  {i:'🔔', t:'El cuerpo detecta un cambio', d:'Algo se modifica en el cuerpo. Por ejemplo, después de comer sube la glucosa en la sangre.'},
+  {i:'🏭', t:'Una glándula fabrica una hormona', d:'La glándula recibe la señal (o la orden de la hipófisis) y produce la hormona que corresponde. Ejemplo: el páncreas fabrica insulina.'},
+  {i:'🩸', t:'La hormona viaja por la sangre', d:'Por eso se llaman glándulas de secreción interna: liberan su producto directo a la sangre, sin conductos. La hormona llega a todo el cuerpo.'},
+  {i:'🎯', t:'Actúa en el órgano blanco', d:'Solo responden las células que tienen el receptor adecuado. Es como una llave (la hormona) y una cerradura (el receptor): cada hormona abre solo ciertas células. Esas células forman el órgano blanco.'},
+  {i:'✅', t:'Se produce la respuesta', d:'El órgano blanco hace su trabajo. Ejemplo: las células absorben la glucosa y baja el nivel en sangre.'},
+  {i:'🔁', t:'Retroalimentación negativa', d:'Cuando el nivel vuelve a la normalidad, la glándula frena la producción de la hormona. Es un sistema que se autorregula, como un termostato que apaga la calefacción cuando la casa ya está tibia.'}
+];
+let stepIdx=0;
+function renderSteps(){
+  $('#steps').innerHTML = STEPS.map((s,i)=>`<button class="stepbtn" data-s="${i}" aria-pressed="${i===stepIdx}"><b>${i+1}</b>${s.t}</button>`).join('');
+  const s=STEPS[stepIdx];
+  $('#stepDetail').innerHTML = `<div class="big">${s.i}</div><h3>${stepIdx+1}. ${s.t}</h3><p>${s.d}</p>`;
+  $('#prevStep').disabled = stepIdx===0;
+  $('#nextStep').disabled = stepIdx===STEPS.length-1;
+  $$('#steps .stepbtn').forEach(b=>b.addEventListener('click',()=>{stepIdx=+b.dataset.s;renderSteps();}));
+}
+$('#prevStep').addEventListener('click',()=>{ if(stepIdx>0){stepIdx--;renderSteps();} });
+$('#nextStep').addEventListener('click',()=>{ if(stepIdx<STEPS.length-1){stepIdx++;renderSteps();} });
+renderSteps();
+
+$('#chain').innerHTML = `
+  <div class="node">🧠 Hipotálamo</div>
+  <div class="arrow">↓ da órdenes</div>
+  <div class="node">🔴 Hipófisis</div>
+  <div class="arrow">↓ manda</div>
+  <div class="chainrow"><div class="node">${ab('TSH')}</div><div class="arrow">→</div><div class="node">Tiroides</div><div class="arrow"></div><div class="node">T3 y T4</div></div>
+  <div class="chainrow"><div class="node">${ab('ACTH')}</div><div class="arrow">→</div><div class="node">Suprarrenales</div><div class="arrow"></div><div class="node">Cortisol…</div></div>
+  <div class="chainrow"><div class="node">${ab('GTH')}</div><div class="arrow">→</div><div class="node">Gónadas</div><div class="arrow"></div><div class="node">Sexuales</div></div>`;
+
+/* ============ 2. Mapa ============ */
+let selGland='hipofisis';
+function buildMap(){
+  const svg=$('#body');
+  const silueta=`<g fill="var(--body)" stroke="var(--line)" stroke-width="2" stroke-linejoin="round">
+    <circle cx="120" cy="52" r="34"/>
+    <rect x="106" y="84" width="28" height="20" rx="6"/>
+    <path d="M70 104 Q120 92 170 104 L178 256 Q120 272 62 256 Z"/>
+    <path d="M68 108 L36 232 Q34 242 46 244 Q56 244 60 236 L86 132 Z"/>
+    <path d="M172 108 L204 232 Q206 242 194 244 Q184 244 180 236 L154 132 Z"/>
+    <path d="M76 252 L70 404 Q70 412 80 412 L102 412 Q110 412 110 404 L120 272 Z"/>
+    <path d="M164 252 L170 404 Q170 412 160 412 L138 412 Q130 412 130 404 L120 272 Z"/>
+  </g>`;
+  const dots=GLANDS.map(g=>g.pos.map(p=>
+    `<g class="dot" data-g="${g.id}" tabindex="0" role="button" aria-label="${g.n}"><circle cx="${p[0]}" cy="${p[1]}" r="11" fill="${g.color}"/><text x="${p[0]}" y="${p[1]}">${g.num}</text></g>`).join('')).join('');
+  svg.innerHTML = silueta + dots;
+  $$('.dot',svg).forEach(d=>{
+    d.addEventListener('click',()=>selectGland(d.dataset.g));
+    d.addEventListener('keydown',e=>{ if(e.key==='Enter'||e.key===' '){e.preventDefault();selectGland(d.dataset.g);} });
+  });
+  $('#glist').innerHTML = GLANDS.map(g=>`<button class="gbtn" data-g="${g.id}" aria-pressed="false"><i style="background:${g.color}">${g.num}</i>${g.n}</button>`).join('');
+  $$('#glist .gbtn').forEach(b=>b.addEventListener('click',()=>selectGland(b.dataset.g)));
+}
+function selectGland(id){
+  selGland=id;
+  const g=GL[id];
+  $$('.dot').forEach(d=>d.classList.toggle('sel',d.dataset.g===id));
+  $$('#glist .gbtn').forEach(b=>b.setAttribute('aria-pressed',b.dataset.g===id));
+  const hasLobe=g.hormonas.some(h=>h[2]);
+  const rows=g.hormonas.map(h=>`<tr><td><b>${ab(h[0])}</b></td><td>${ab(h[1])}</td>${hasLobe?`<td>${h[2]?`<span class="lobe">${h[2]}</span>`:''}</td>`:''}</tr>`).join('');
+  const fallas = g.fallas.length
+    ? `<h4>Si falla, aparece…</h4><div class="chips">${g.fallas.map(f=>`<button class="chip" data-d="${f}">${DIS[f].n}</button>`).join('')}</div>`
+    : '';
+  $('#gdetail').innerHTML = `
+    <h3><span style="display:inline-block;width:14px;height:14px;border-radius:50%;background:${g.color};margin-right:8px"></span>${g.num}. ${g.n}</h3>
+    <p><b>📍 Dónde está:</b> ${g.donde}</p>
+    <p><b>🎯 Para qué sirve:</b> ${ab(g.rol)}</p>
+    <div class="tscroll"><table class="t"><tr><th>Hormona</th><th>Qué hace</th>${hasLobe?`<th>${g.id==='hipofisis'?'Lóbulo':'Zona'}</th>`:''}</tr>${rows}</table></div>
+    <div class="callout">🔗 <b>Fundamental:</b> ${ab(g.fund)}</div>
+    ${fallas}`;
+}
+
+/* ============ 3. Enfermedades ============ */
+const FILTROS=[['todas','Todas'],['pancreas','Páncreas'],['tiroides','Tiroides'],['paratiroides','Paratiroides'],['suprarrenales','Suprarrenales'],['hipofisis','Hipófisis']];
+let filtro='todas';
+function diseaseCard(d){
+  return `<details class="dis" id="d-${d.id}">
+    <summary><span class="dname">${d.n}</span><span class="pill ${d.t.cls}">${d.t.txt}</span><span class="dres">${ab(d.res)}</span></summary>
+    <div class="dbody">
+      <div><h4>Qué pasa</h4><p>${ab(d.que)}</p><h4>Glándula</h4><p>${GL[d.g].n}</p></div>
+      <div><h4>Síntomas</h4><ul>${d.s.map(x=>`<li>${ab(x)}</li>`).join('')}</ul></div>
+      <div><h4>Causas</h4><p>${ab(d.c)}</p></div>
+      <div><h4>Tratamiento</h4><p>${ab(d.tr)}</p></div>
+      ${d.tip?`<div class="tip">💡 ${ab(d.tip)}</div>`:''}
+    </div></details>`;
+}
+function renderDiseases(){
+  $('#dfilter').innerHTML = FILTROS.map(f=>`<button class="chip" data-f="${f[0]}" aria-pressed="${f[0]===filtro}">${f[1]}</button>`).join('');
+  $$('#dfilter .chip').forEach(b=>b.addEventListener('click',()=>{filtro=b.dataset.f;renderDiseases();}));
+  const lista = DISEASES.filter(d=>filtro==='todas'||d.g===filtro);
+  $('#dlist').innerHTML = lista.map(diseaseCard).join('');
+}
+function buildCuadro(){
+  const L=(id,txt)=>`<button class="linkbtn" data-d="${id}">${txt||DIS[id].n}</button>`;
+  $('#cuadro').innerHTML = `
+    <tr><th>Hormona</th><th>Exceso</th><th>Déficit</th></tr>
+    <tr><td><b>Insulina</b></td><td>Hipoglucemia (glucosa baja)</td><td>${L('diabetes')}</td></tr>
+    <tr><td><b>${ab('T3')} y ${ab('T4')}</b></td><td>${L('hipertiroidismo')} · ${L('graves')}</td><td>${L('hipotiroidismo')} · ${L('hashimoto')}</td></tr>
+    <tr><td><b>${ab('PTH')}</b></td><td>${L('hiperparatiroidismo')}</td><td>${L('hipoparatiroidismo')}</td></tr>
+    <tr><td><b>Cortisol</b></td><td>${L('cushing')}</td><td>${L('addison')}</td></tr>
+    <tr><td><b>${ab('STH')}</b></td><td>${L('gigantismo')} (niños) · ${L('acromegalia')} (adultos)</td><td>${L('enanismo')}</td></tr>`;
+}
+function openDisease(id){
+  filtro='todas';
+  renderDiseases();
+  go('enfermedades');
+  const el=$('#d-'+id);
+  if(el){
+    el.open=true;
+    setTimeout(()=>{ el.scrollIntoView({behavior:'smooth',block:'center'}); el.classList.add('flash'); setTimeout(()=>el.classList.remove('flash'),1500); },120);
+  }
+}
+document.addEventListener('click',e=>{
+  const t=e.target.closest('[data-d]');
+  if(t){ e.preventDefault(); openDisease(t.dataset.d); }
+});
+
+/* ============ 4a. Simulador de hormonas ============ */
+const SIM = {
+  insulina:{ n:'Insulina', fn:'Baja la glucosa de la sangre.',
+    def:{id:'diabetes'},
+    exc:{custom:{n:'Hipoglucemia', res:'Demasiada insulina baja la glucosa más de lo normal.', s:['Temblor, sudor frío y mareo','Hambre y confusión','En casos graves, desmayo']}} },
+  tiroideas:{ n:'T3 y T4', fn:'Regulan la velocidad del metabolismo.',
+    def:{id:'hipotiroidismo', extra:['hashimoto']}, exc:{id:'hipertiroidismo', extra:['graves']} },
+  pth:{ n:'PTH', fn:'Sube el calcio en la sangre.',
+    def:{id:'hipoparatiroidismo'}, exc:{id:'hiperparatiroidismo'} },
+  cortisol:{ n:'Cortisol', fn:'Respuesta al estrés y manejo del azúcar.',
+    def:{id:'addison'}, exc:{id:'cushing'} },
+  sth:{ n:'STH', fn:'Hace crecer huesos y músculos.',
+    def:{id:'enanismo'}, exc:{kid:'gigantismo', adult:'acromegalia'} }
+};
+let simKey='tiroideas', simAge='kid';
+function renderSimChips(){
+  $('#simChips').innerHTML = Object.entries(SIM).map(([k,v])=>`<button class="chip" data-k="${k}" aria-pressed="${k===simKey}">${v.n}</button>`).join('');
+  $$('#simChips .chip').forEach(b=>b.addEventListener('click',()=>{simKey=b.dataset.k;$('#simRange').value=50;renderSim();renderSimChips();}));
+}
+function renderSim(){
+  const v=+$('#simRange').value, h=SIM[simKey];
+  $('#ageBox').style.display = (simKey==='sth' && v>70) ? 'flex' : 'none';
+  $('#ageKid').setAttribute('aria-pressed',simAge==='kid');
+  $('#ageAdult').setAttribute('aria-pressed',simAge==='adult');
+  let html='';
+  if(v>=30 && v<=70){
+    html=`<div class="card"><span class="pill ok">Normal</span><h3 style="margin-top:8px">Equilibrio</h3><p>${ab(h.n)}: ${h.fn} Su nivel es el normal y el cuerpo funciona bien.</p></div>`;
+  } else {
+    const side = v<30 ? h.def : h.exc;
+    const tipo = v<30 ? T_DE : T_EX;
+    let d, custom=null, id=null;
+    if(side.custom){ custom=side.custom; }
+    else { id = side.id || (simAge==='kid'?side.kid:side.adult); d=DIS[id]; }
+    const nom = custom? custom.n : d.n;
+    const res = custom? custom.res : d.res;
+    const sint = custom? custom.s : d.s;
+    const extra = (side.extra||[]).map(x=>`<button class="chip" data-d="${x}">Causa autoinmune: ${DIS[x].n}</button>`).join(' ');
+    html=`<div class="card"><span class="pill ${tipo.cls}">${tipo.txt} de ${ab(h.n)}</span>
+      <h3 style="margin-top:8px">${nom}</h3><p>${ab(res)}</p>
+      <h4>Síntomas</h4><ul>${sint.slice(0,4).map(x=>`<li>${ab(x)}</li>`).join('')}</ul>
+      <div class="chips">${id?`<button class="chip" data-d="${id}">Ver ficha completa →</button>`:''} ${extra}</div></div>`;
+  }
+  $('#simResult').innerHTML=html;
+}
+$('#simRange').addEventListener('input',renderSim);
+$('#ageKid').addEventListener('click',()=>{simAge='kid';renderSim();});
+$('#ageAdult').addEventListener('click',()=>{simAge='adult';renderSim();});
+renderSimChips(); renderSim();
+
+/* ============ 4b. Laboratorio de glucosa ============ */
+let glu=90;
+function gluTick(){
+  const diab=$('#chkDiab').checked;
+  if(glu>105){ glu -= diab ? 0.12 : 1.8; }
+  else if(glu<80){ glu += 1.4; }
+  glu=Math.max(45,Math.min(280,glu));
+  paintGlu();
+}
+function paintGlu(){
+  const diab=$('#chkDiab').checked;
+  const pct=Math.round(glu/300*100);
+  const col = glu<70 ? '#3b82f6' : glu<=140 ? '#22c55e' : '#ef4444';
+  $('#mGlu').style.width=pct+'%'; $('#mGlu').style.background=col;
+  $('#vGlu').textContent=Math.round(glu)+' mg/dL';
+  const ins = diab ? 4 : (glu>100 ? Math.min(100,(glu-100)/1.4) : 6);
+  const glc = glu<85 ? Math.min(100,(85-glu)*3.5) : 5;
+  $('#mIns').style.width=ins+'%';
+  $('#mGlc').style.width=glc+'%';
+  let m;
+  if(glu>105 && !diab) m='🔼 Glucosa alta → las <b>células beta</b> del páncreas liberan <b>insulina</b> → las células absorben glucosa → la glucosa baja.';
+  else if(glu>105 && diab) m='⚠️ Glucosa alta y <b>casi sin insulina</b>: la glucosa no entra a las células y se queda en la sangre (hiperglucemia). Así se ve la diabetes.';
+  else if(glu<80) m='🔽 Glucosa baja → las <b>células alfa</b> liberan <b>glucagón</b> → el hígado suelta glucosa → la glucosa sube.';
+  else m='✅ Equilibrio: la glucosa está en un rango normal (más o menos 70–110 mg/dL en ayunas). Es la retroalimentación negativa en acción.';
+  $('#gluMsg').innerHTML=m;
+}
+$('#btnEat').addEventListener('click',()=>{glu=Math.min(280,glu+95);paintGlu();});
+$('#btnFast').addEventListener('click',()=>{glu=Math.max(45,glu-40);paintGlu();});
+$('#btnReset').addEventListener('click',()=>{glu=90;$('#chkDiab').checked=false;paintGlu();});
+$('#chkDiab').addEventListener('change',paintGlu);
+setInterval(gluTick,200);
+paintGlu();
+
+/* ============ 4c. Laboratorio del calcio ============ */
+const CA = {
+  ok:{ cls:'ok', t:'Calcio normal', body:'<p>Las dos hormonas están en equilibrio: la <b>PTH</b> sube el calcio si hace falta y la <b>calcitonina</b> lo baja si sobra.</p>' },
+  low:{ cls:'de', t:'Calcio bajo', flow:['Calcio bajo','Paratiroides liberan PTH','El hueso libera calcio · El riñón lo retiene · El intestino absorbe más','Calcio sube ↑'],
+    body:'<p>Si falta calcio, las <b>paratiroides</b> liberan <b>PTH</b>, que lo sube. Si las paratiroides no funcionan, aparece el <button class="linkbtn" data-d="hipoparatiroidismo">hipoparatiroidismo</button> (calambres y tetania).</p>' },
+  high:{ cls:'ex', t:'Calcio alto', flow:['Calcio alto','Tiroides libera calcitonina','El calcio pasa a los huesos','Calcio baja ↓'],
+    body:'<p>Si sobra calcio, la <b>tiroides</b> libera <b>calcitonina</b>, que lo baja. Si en cambio sobra PTH, aparece el <button class="linkbtn" data-d="hiperparatiroidismo">hiperparatiroidismo</button> (calcio alto y huesos frágiles).</p>' }
+};
+function renderCa(k){
+  $$('[data-ca]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.ca===k));
+  const c=CA[k];
+  const flow=c.flow?`<div class="flowline">${c.flow.map((x,i)=>`${i?'<span class="arrow">→</span>':''}<span class="node">${x}</span>`).join('')}</div>`:'';
+  $('#caResult').innerHTML=`<span class="pill ${c.cls}">${c.t}</span>${flow}<div style="margin-top:10px">${ab(c.body)}</div>`;
+}
+$$('[data-ca]').forEach(b=>b.addEventListener('click',()=>renderCa(b.dataset.ca)));
+renderCa('ok');
+
+/* ============ 5. Siglas y vocabulario ============ */
+const GLOSARIO = [
+  ...Object.entries(SIGLAS).map(([k,v])=>[k,v,{
+    STH:'Hace crecer huesos y músculos.', TSH:'Ordena a la tiroides que trabaje.', ACTH:'Ordena a las suprarrenales que trabajen.',
+    GTH:'Ordena a las gónadas que trabajen.', FSH:'Madura óvulos y espermatozoides.', LH:'Provoca la ovulación y la producción de testosterona.',
+    PRL:'Estimula la producción de leche.', MSH:'Pigmenta la piel.', ADH:'Hace que el riñón retenga agua.',
+    T3:'Hormona tiroidea activa (el número indica los átomos de yodo).', T4:'Tiroxina: la hormona tiroidea principal.', PTH:'Sube el calcio en la sangre.',
+    ANP:'Hormona del corazón: favorece la eliminación de sodio y agua.', BNP:'Hormona del corazón: ayuda a regular la presión arterial.',
+    EPO:'Hormona de los riñones: estimula la producción de glóbulos rojos.', CCK:'Hormona del intestino: estimula enzimas pancreáticas y contrae la vesícula biliar.',
+    TRH:'Ordena a la hipófisis liberar TSH.', CRH:'Ordena a la hipófisis liberar ACTH.', GnRH:'Ordena a la hipófisis liberar FSH y LH.', GHRH:'Ordena a la hipófisis liberar STH.'
+  }[k]]),
+  ['Hipo-','Prefijo: poco o por debajo.','Hipotiroidismo = poca hormona tiroidea.'],
+  ['Hiper-','Prefijo: mucho o por encima.','Hipertiroidismo = demasiada hormona tiroidea.'],
+  ['-emia','Sufijo: “en la sangre”.','Glucemia = glucosa en sangre. Hipocalcemia = poco calcio en sangre.'],
+  ['Hormona','Mensajero químico que viaja por la sangre.','Insulina, cortisol, T4…'],
+  ['Órgano blanco','Órgano o células que responden a una hormona porque tienen su receptor.','La tiroides es el órgano blanco de la TSH.'],
+  ['Endocrina','Glándula que libera su producto a la sangre.','Tiroides, hipófisis.'],
+  ['Exocrina','Glándula que libera su producto por un conducto.','Sudoríparas, salivales.'],
+  ['Glándula mixta','Glándula endocrina y exocrina a la vez.','Páncreas.'],
+  ['Gónadas','Glándulas sexuales.','Ovarios y testículos.'],
+  ['Autoinmune','Las defensas atacan por error al propio cuerpo.','Hashimoto, Graves, diabetes tipo 1, Addison.'],
+  ['Retroalimentación negativa','Cuando el nivel se normaliza, la glándula frena la hormona.','Como un termostato.'],
+  ['Bocio','Tiroides agrandada.','Por falta de yodo, Hashimoto o Graves.'],
+  ['Exoftalmos','Ojos saltones.','Típico de la enfermedad de Graves.'],
+  ['Tetania','Espasmos musculares por calcio bajo.','Hipoparatiroidismo.'],
+  ['Poliuria / polidipsia / polifagia','Orinar mucho / mucha sed / mucha hambre (poli = mucho).','Síntomas de la diabetes.'],
+  ['Acro-','Prefijo: extremidades.','Acromegalia = crecen las extremidades.'],
+  ['Glucemia','Nivel de glucosa en sangre.','Normal en ayunas: unos 70–110 mg/dL.'],
+  ['Receptor','Proteína de la célula a la que se pega la hormona.','La cerradura donde entra la llave (hormona).'],
+  ['Segundo mensajero','Molécula dentro de la célula que transmite el mensaje de una hormona pegada a la membrana.','Ejemplo: AMPc.'],
+  ['Hormona peptídica','Hormona hecha de aminoácidos; receptor en la membrana.','Insulina, STH, ADH.'],
+  ['Hormona esteroidea','Hormona derivada del colesterol; receptor dentro de la célula.','Cortisol, estrógeno, testosterona.'],
+  ['Endocrina / paracrina / autocrina','La hormona actúa lejos (por sangre) / en células vecinas / en la misma célula que la liberó.','Endo = adentro, para = al lado, auto = uno mismo.'],
+  ['Neuroendocrino','Neuronas que liberan hormonas a la sangre.','Hipotálamo: oxitocina y ADH.'],
+  ['Adenohipófisis','Hipófisis anterior: fabrica sus hormonas.','STH, TSH, ACTH, FSH, LH, PRL.'],
+  ['Neurohipófisis','Hipófisis posterior: almacena y libera hormonas del hipotálamo.','Oxitocina y ADH.'],
+  ['Retroalimentación positiva','La respuesta refuerza el estímulo.','Oxitocina en el parto.'],
+  ['Hipercalcemia / hipocalcemia','Calcio alto / bajo en la sangre.','Hiper- y hipoparatiroidismo.'],
+  ['Eritropoyesis','Formación de glóbulos rojos.','La estimula la EPO de los riñones.']
+];
+function renderGlosario(q=''){
+  const f=q.trim().toLowerCase();
+  const rows=GLOSARIO.filter(r=>!f||r.join(' ').toLowerCase().includes(f));
+  $('#sgTable').innerHTML = `<tr><th>Término</th><th>Significa</th><th>Para recordar</th></tr>` +
+    (rows.length ? rows.map(r=>`<tr><td class="sg">${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td></tr>`).join('') : `<tr><td colspan="3">No encontré nada con “${q.replace(/</g,'&lt;')}”.</td></tr>`);
+}
+$('#sgSearch').addEventListener('input',e=>renderGlosario(e.target.value));
+renderGlosario();
+
+/* ============ 6. Quiz ============ */
+const QUIZ = [
+  {q:'¿Qué es el órgano blanco de una hormona?', o:['La glándula que la produce','El órgano o las células que responden a esa hormona','El órgano que la destruye','La vena por la que viaja'], a:1,
+   why:'Solo responden las células que tienen el receptor adecuado (llave y cerradura).'},
+  {q:'¿Qué diferencia a una glándula endocrina de una exocrina?', o:['La endocrina libera sus productos a la sangre','La exocrina produce hormonas','La endocrina solo existe en el cerebro','No hay diferencia'], a:0,
+   why:'Las endocrinas liberan hormonas a la sangre. Las exocrinas liberan por conductos (sudor, saliva).'},
+  {q:'¿Qué hormona de la hipófisis ordena a la tiroides que trabaje?', o:['ACTH','STH','TSH','PRL'], a:2,
+   why:'TSH = hormona tiroestimulante: estimula la tiroides.'},
+  {q:'¿Qué glándula recibe órdenes de la ACTH?', o:['Tiroides','Suprarrenales','Páncreas','Paratiroides'], a:1,
+   why:'ACTH = adrenocorticotrofina: actúa sobre la corteza de las suprarrenales.'},
+  {q:'¿Qué hormonas regulan el calcio y qué hacen?', o:['Insulina y glucagón','PTH (lo sube) y calcitonina (lo baja)','Cortisol y aldosterona','T3 y T4'], a:1,
+   why:'La PTH de las paratiroides sube el calcio y la calcitonina de la tiroides lo baja: son antagonistas.'},
+  {q:'¿Qué mineral necesita la tiroides para fabricar T3 y T4?', o:['Hierro','Calcio','Yodo','Sodio'], a:2,
+   why:'T3 y T4 llevan átomos de yodo. Su falta puede causar bocio e hipotiroidismo.'},
+  {q:'¿Por qué el páncreas es una glándula mixta?', o:['Tiene dos lóbulos','Es endocrina (insulina y glucagón) y exocrina (jugo pancreático)','Produce solo enzimas','Está en dos lugares del cuerpo'], a:1,
+   why:'Libera hormonas a la sangre y jugo digestivo al intestino.'},
+  {q:'Una persona tiene presión baja, cansancio extremo, piel oscura y ganas de comer sal. ¿Qué enfermedad es más probable?', o:['Cushing','Graves','Addison','Acromegalia'], a:2,
+   why:'En Addison faltan cortisol y aldosterona: baja la presión y se pierde sal.'},
+  {q:'Cara de luna llena, estrías violáceas y presión alta indican…', o:['Síndrome de Cushing','Hipotiroidismo','Hipoparatiroidismo','Enanismo'], a:0,
+   why:'Cushing = exceso de cortisol.'},
+  {q:'¿Qué enfermedad produce exoftalmos (ojos saltones)?', o:['Hashimoto','Graves','Addison','Diabetes'], a:1,
+   why:'Graves es autoinmune y provoca hipertiroidismo, con ojos saltones.'},
+  {q:'Un adulto nota que le crecen las manos, los pies y la mandíbula. ¿Cuál es la causa más probable?', o:['Gigantismo','Acromegalia','Enanismo','Hipotiroidismo'], a:1,
+   why:'Exceso de STH en el adulto. En un niño se llama gigantismo.'},
+  {q:'¿Cuál es la diferencia entre Hashimoto y Graves?', o:['Hashimoto causa hipotiroidismo y Graves hipertiroidismo','Las dos causan hipotiroidismo','Hashimoto afecta al páncreas','Ninguna es autoinmune'], a:0,
+   why:'Las dos son autoinmunes y afectan la tiroides, pero Hashimoto la frena y Graves la acelera.'},
+  {q:'Calambres, hormigueo y espasmos musculares por calcio bajo. ¿Qué enfermedad es?', o:['Hiperparatiroidismo','Hipoparatiroidismo','Cushing','Acromegalia'], a:1,
+   why:'Falta de PTH → hipocalcemia → tetania.'},
+  {q:'Mucha sed, orinar mucho y mucha hambre son síntomas típicos de…', o:['Diabetes','Addison','Hipotiroidismo','Enanismo'], a:0,
+   why:'Son la polidipsia, la poliuria y la polifagia de la diabetes.'},
+  {q:'¿Qué es la retroalimentación negativa?', o:['Cuando la hormona aumenta sin control','Cuando el nivel se normaliza y la glándula frena la producción','Cuando la hormona se destruye','Cuando una hormona actúa sin receptor'], a:1,
+   why:'Es el sistema de autorregulación, parecido a un termostato.'},
+  {q:'¿Qué órgano produce eritropoyetina (EPO) y qué efecto tiene?', o:['El hígado: baja la glucosa','Los riñones: estimula la producción de glóbulos rojos','El corazón: elimina sodio','El estómago: da hambre'], a:1,
+   why:'La EPO se produce en los riñones y estimula la formación de glóbulos rojos.'},
+  {q:'¿Qué hormona del estómago estimula el hambre?', o:['Gastrina','Secretina','Grelina','CCK'], a:2,
+   why:'La grelina estimula el hambre. La gastrina estimula la secreción de ácido gástrico.'},
+  {q:'El corazón produce ANP y BNP. ¿Qué hacen?', o:['Estimulan la producción de glóbulos rojos','Favorecen la eliminación de sodio y agua y ayudan a regular la presión','Suben la glucosa','Activan la vitamina D'], a:1,
+   why:'ANP y BNP hacen que los riñones eliminen sodio y agua, lo que ayuda a bajar la presión arterial.'},
+  {q:'¿Qué hormonas produce el intestino delgado?', o:['Insulina y glucagón','Gastrina y grelina','Secretina y colecistoquinina (CCK)','Renina y EPO'], a:2,
+   why:'La secretina estimula el bicarbonato pancreático y la CCK estimula las enzimas pancreáticas y la contracción de la vesícula biliar.'},
+  {q:'¿Qué hormonas tienen su receptor dentro de la célula y actúan más lento?', o:['Las esteroideas (cortisol, estrógeno)','Las peptídicas (insulina)','Ninguna','Todas por igual'], a:0,
+   why:'Las esteroideas atraviesan la membrana, activan genes y su efecto tarda más pero dura más. Las peptídicas se pegan afuera y actúan rápido.'},
+  {q:'¿Cuál es un ejemplo de retroalimentación positiva?', o:['La insulina baja la glucosa','La oxitocina durante el parto','La PTH sube el calcio','T3 y T4 frenan a la TSH'], a:1,
+   why:'En el parto las contracciones aumentan la oxitocina, que provoca más contracciones, hasta que nace el bebé.'},
+  {q:'¿Dónde se fabrican la oxitocina y la ADH?', o:['En la hipófisis posterior','En el hipotálamo','En las suprarrenales','En la tiroides'], a:1,
+   why:'Se fabrican en el hipotálamo y se almacenan y liberan en la hipófisis posterior.'},
+  {q:'Si bajan T3 y T4 en sangre (y la hipófisis funciona bien), ¿qué pasa con la TSH?', o:['Baja','Sube','No cambia','Desaparece'], a:1,
+   why:'Retroalimentación negativa: al faltar T3 y T4 ya no frenan a la hipófisis, y la TSH sube para estimular la tiroides.'}
+];
+let order=[], qi=0, score=0;
+function startQuiz(){ order=shuffle([...QUIZ.keys()]); qi=0; score=0; renderQ(); }
+function renderQ(){
+  const box=$('#quiz');
+  if(qi>=order.length){
+    const pct=Math.round(score/order.length*100);
+    const msg = pct>=85 ? '¡Excelente! Ya dominás el tema.' : pct>=60 ? 'Muy bien. Repasá las fichas de lo que fallaste.' : 'Repasá las pestañas 1 a 3 y volvé a intentar.';
+    box.innerHTML=`<div style="text-align:center"><div class="score">${score} / ${order.length}</div><p>${msg}</p><button class="btn" id="again">Intentar de nuevo</button></div>`;
+    $('#again').addEventListener('click',startQuiz);
+    return;
+  }
+  const q=QUIZ[order[qi]];
+  box.innerHTML=`<div class="qhead">Pregunta ${qi+1} de ${order.length} · Aciertos: ${score}</div>
+    <div class="bar"><span style="width:${qi/order.length*100}%"></span></div>
+    <h3>${ab(q.q)}</h3>
+    <div class="opts">${q.o.map((t,i)=>`<button class="opt" data-i="${i}">${ab(t)}</button>`).join('')}</div>
+    <div id="fb"></div>`;
+  $$('.opt',box).forEach(b=>b.addEventListener('click',()=>answer(+b.dataset.i,q)));
+}
+function answer(i,q){
+  const ok = i===q.a;
+  if(ok) score++;
+  $$('#quiz .opt').forEach((b,idx)=>{
+    b.disabled=true;
+    if(idx===q.a) b.classList.add('right');
+    else if(idx===i) b.classList.add('wrong');
+  });
+  const last = qi===order.length-1;
+  $('#fb').innerHTML=`<div class="callout ${ok?'':'warn'}"><b>${ok?'✅ ¡Correcto!':'❌ No exactamente.'}</b> ${ab(q.why)}</div>
+    <button class="btn" id="nextQ">${last?'Ver resultado':'Siguiente →'}</button>`;
+  $('#nextQ').addEventListener('click',()=>{qi++;renderQ();});
+}
+startQuiz();
+
+/* ============ Extras: Cómo funciona (ampliado) ============ */
+$$('.ab').forEach(e=>{ e.innerHTML=ab(e.innerHTML); });
+
+const COMM=[
+  {k:'endocrina', n:'Endocrina', d:'La hormona viaja por la <b>sangre</b> hasta células lejanas.', e:'Insulina: sale del páncreas y actúa en músculo e hígado.'},
+  {k:'paracrina', n:'Paracrina', d:'La sustancia actúa sobre <b>células vecinas</b>, sin viajar por la sangre.', e:'Somatostatina del páncreas: frena a células cercanas que producen insulina y glucagón.'},
+  {k:'autocrina', n:'Autocrina', d:'La sustancia actúa sobre <b>la misma célula</b> que la liberó.', e:'Algunos factores de crecimiento que estimulan a la célula que los produjo.'},
+  {k:'neuro', n:'Neuroendocrina', d:'Una <b>neurona</b> libera la hormona a la sangre.', e:'Oxitocina y ADH: se fabrican en neuronas del hipotálamo.'}
+];
+let commKey='endocrina';
+function renderComm(){
+  $('#commChips').innerHTML = COMM.map(c=>`<button class="chip" data-c="${c.k}" aria-pressed="${c.k===commKey}">${c.n}</button>`).join('');
+  $$('#commChips .chip').forEach(b=>b.addEventListener('click',()=>{commKey=b.dataset.c;renderComm();}));
+  const c=COMM.find(x=>x.k===commKey);
+  $('#commBox').innerHTML = `<div class="callout"><p style="margin:0 0 6px">${c.d}</p><b>Ejemplo:</b> ${c.e}</div>`;
+}
+renderComm();
+
+const AXIS = {
+  ok:{ cls:'ok', t:'Equilibrio', flow:['Hipotálamo libera TRH','Hipófisis libera TSH','Tiroides libera T3 y T4','T3 y T4 normales frenan un poco a los de arriba'],
+    msg:'El sistema está estable: las tres glándulas trabajan a un ritmo normal.' },
+  low:{ cls:'de', t:'T3 y T4 bajas', flow:['T3 y T4 bajas','Ya no frenan al hipotálamo ni a la hipófisis','Suben TRH y TSH','La tiroides trabaja más','T3 y T4 suben ↑'],
+    msg:'Si la tiroides está dañada (por ejemplo, en Hashimoto), no puede responder: la TSH queda muy alta y T3 y T4 siguen bajas.' },
+  high:{ cls:'ex', t:'T3 y T4 altas', flow:['T3 y T4 altas','Frenan al hipotálamo y a la hipófisis','Bajan TRH y TSH','La tiroides descansa','T3 y T4 bajan ↓'],
+    msg:'En la enfermedad de Graves los anticuerpos imitan a la TSH: la tiroides sigue produciendo aunque la TSH esté muy baja.' }
+};
+function renderAxis(k){
+  $$('[data-ax]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.ax===k));
+  const a=AXIS[k];
+  const flow=`<div class="flowline">${a.flow.map((x,i)=>`${i?'<span class="arrow">→</span>':''}<span class="node">${ab(x)}</span>`).join('')}</div>`;
+  $('#axisBox').innerHTML=`<div class="result"><span class="pill ${a.cls}">${a.t}</span>${flow}<div class="callout" style="margin-top:10px">${ab(a.msg)}</div></div>`;
+}
+$$('[data-ax]').forEach(b=>b.addEventListener('click',()=>renderAxis(b.dataset.ax)));
+renderAxis('ok');
+
+/* ============ Inicio ============ */
+buildMap();
+selectGland('hipofisis');
+renderDiseases();
+buildCuadro();
+const inicial=(location.hash||'').replace('#','');
+go(['funciona','mapa','enfermedades','lab','siglas','quiz'].includes(inicial)?inicial:'funciona');
+window.scrollTo(0,0);
+</script>
+</body>
+</html>
